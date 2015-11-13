@@ -95,7 +95,7 @@ if __name__ == '__main__':
     commDict = {}
     for comm in GPF.COMMAND_FUNCTIONS:
         if comm is not None:
-            if "exit" in comm.__name__.lower():
+            if (("exit" in comm.__name__.lower()) or ("report") in comm.__name__.lower()):
                 commDict[comm.__name__] = root
             elif "load" in comm.__name__.lower():
                 commDict[comm.__name__] = registerFrame.frame

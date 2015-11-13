@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter.ttk import *
 from tkinter import messagebox
 from tkinter import filedialog
+from functools import partial
 import locale
 
 from GUI import TableHeader as TH
@@ -11,6 +12,59 @@ from Constants import printConstants as PC
 from Constants import config
 import CheckbookTransaction as CBT
 import checkbookReport as CR
+
+month = 0
+
+def ok(frame):
+    """Processes the month dialog
+    Parameters:
+        frame (Frame) : the frame to gather the month data from
+    """
+    global month
+    for elem in frame.winfo_children():
+        if type(elem) is ttk.Entry:
+            month = int(elem.get())
+    frame.destroy()
+
+def _displayReport(frame, repText):
+    """Displays the given report text in the specified frame
+    Parameters:
+        frame (Frame) : the frame to display the text
+        repText (str) : the text to display
+    """
+    for elem in frame.winfo_children():
+        elem.destroy()
+    ttk.Label(frame, text=repText).pack()
+
+
+def processMonthlyReport(frame, cr, index):
+    """Handles gathering the data for the Monthly report
+    Parameters:
+        frame (Frame)        : the frame to display the text
+        cr (CheckbookReport) : the report generator
+        index (int)          : used to select the report method
+    """
+    global month
+    newTop = Toplevel()
+    newTop.transient(frame)
+    ttk.Label(newTop, text="Choose the month:").pack(side=LEFT, padx=5, pady=5)
+    ttk.Entry(newTop, width=10).pack(side=LEFT, padx=5, pady=5)
+    ttk.Button(newTop, text="Ok", command=partial(ok, newTop)).pack(
+        side=LEFT, padx=5, pady=5)
+    newTop.winfo_children()[1].focus_set()
+    newTop.wait_window(newTop)
+    repMethod = CR.CheckbookReport.dispatcher[CR.REPORT_TYPES[index]]
+    _displayReport(frame, repMethod(cr, month))
+
+def processTotalReport(frame, cr, index):
+    """Handles displaying the total report
+    Parameters:
+        frame (Frame)        : the frame to display the text
+        cr (CheckbookReport) : the report generator
+        index (int)          : used to select the report method
+    """
+    repMethod = CR.CheckbookReport.dispatcher[CR.REPORT_TYPES[index]]
+    _displayReport(frame, repMethod(cr))
 
 def processExitCommand(frame, cb):
     """Asks the user to save and then closes the frame
@@ -30,6 +84,8 @@ def processShowAddCommand(frame, cb):
     for child in frame.winfo_children():
         if type(child) is ttk.Entry:
             child.delete(0, END)
+
+    frame.winfo_children()[0].focus_set()
 
 def processAddCommand(frame, cb):
     """Adds values contained in the specified frame into the specified checkbook
@@ -61,7 +117,17 @@ def processLoadCommand(frame, cb):
         populateScrollFrame(frame, cb)
 
 def processReportCommand(frame, cb):
-    print("processReportCommand")
+    cr = CR.CheckbookReport(cb)
+    top = Toplevel()
+    top.transient(frame)
+    repTypeFrame = ttk.Frame(top)
+    ttk.Label(repTypeFrame, text="Pick your report type:").pack(padx=5, pady=10)
+    repTypeFrame.pack()
+    for i in range(len(CR.REPORT_TYPES)):
+        repMethod = CR.CheckbookReport.dispatcher[CR.REPORT_TYPES[i]]
+        ttk.Button(repTypeFrame, text=CR.REPORT_TYPES[i],
+            command=partial(REPORT_PROCESSORS[i], top, cr, i)).pack(side=LEFT, padx=5)
+    top.geometry("+500+1")
 
 def processEditCommand(frame, cb):
     print("processEditCommand")
@@ -110,6 +176,7 @@ def setRowText(row, cbt):
         row.setText(i, value)
 
 
-
 COMMAND_FUNCTIONS = [processShowAddCommand, processEditCommand, processReportCommand, 
                      processLoadCommand, processSaveCommand, processExitCommand]
+
+REPORT_PROCESSORS = [processMonthlyReport, processTotalReport]
