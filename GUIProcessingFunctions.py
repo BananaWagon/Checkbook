@@ -35,6 +35,7 @@ def _displayReport(frame, repText):
     for elem in frame.winfo_children():
         elem.destroy()
     ttk.Label(frame, text=repText).pack()
+    ttk.Button(frame,text="Ok", command=partial(ok, frame)).pack()
 
 
 def processMonthlyReport(frame, cr, index):
