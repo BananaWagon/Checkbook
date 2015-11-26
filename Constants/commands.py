@@ -13,6 +13,8 @@ EDIT_COMMAND = "edit"           # edit a transaction
 REPORT_COMMAND = "report"       # generate a report
 LOAD_COMMAND = "load"           # load an XML file
 
+TRANS_TYPES = ["Debit", "Credit"]
+
 EXIT_LIST = ["Quit", "quit", "Exit", "exit", "q"] # the commands that exit the program
 GUI_COMMAND_LIST = [ADD_COMMAND, EDIT_COMMAND, REPORT_COMMAND, LOAD_COMMAND, SAVE_COMMAND, EXIT_LIST[0]]
 helpHeadersFormat = "{:*^35}"
