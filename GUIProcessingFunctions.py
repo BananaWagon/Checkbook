@@ -85,6 +85,8 @@ def processShowAddCommand(frame, cb):
     for child in frame.winfo_children():
         if type(child) is ttk.Entry:
             child.delete(0, END)
+        elif type(child) is ttk.Combobox:
+            child.set("")
 
     frame.winfo_children()[0].focus_set()
 
@@ -97,9 +99,10 @@ def processAddCommand(frame, cb):
     counter = 0
     cbt = CBT.CheckbookTransaction()
     for child in frame.winfo_children():
-        if type(child) is ttk.Entry:
+        if type(child) is not ttk.Button:
             cbt.setValue(CBT.KEYS[counter], child.get())
             counter += 1
+
     cb.addSingleTrans(cbt)
     frame.grid_forget()
 

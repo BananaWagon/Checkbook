@@ -33,6 +33,13 @@ def addAndPopulate(addFrame, populateFrame, cb):
     GPF.processAddCommand(addFrame, cb)
     GPF.populateScrollFrame(populateFrame, cb)
 
+def _comboboxClear(event):
+    """Clears the combobox widget that generated the event
+    Parameter:
+        event (Event) : used to get the combobox to clear
+    """
+    event.widget.selection_clear()
+
 def populateNewEntry(addFrame, populateFrame):
     """Fills the specified add frame with Entries to be used to add to the checkbook
     Parameters:
@@ -44,8 +51,16 @@ def populateNewEntry(addFrame, populateFrame):
         print("destroy child")
         child.destroy()
 
+    comboLists = [commands.TRANS_TYPES, config.CATEGORIES]
     for i in range(len(PC.SIZELIST) - 1):
-        ttk.Entry(addFrame, width=PC.SIZELIST[i]).grid(row=0, column=i)
+        if i == 1 or i == 2:
+            # Trans / Category Column
+            box = ttk.Combobox(addFrame, width=PC.SIZELIST[i], state='readonly')
+            box.grid(row=0, column=i)
+            box.bind("<<ComboboxSelected>>", _comboboxClear)
+            box['values'] = comboLists[i - 1]
+        else:
+            ttk.Entry(addFrame, width=PC.SIZELIST[i]).grid(row=0, column=i)
     btn = ttk.Button(addFrame, text="Add New", command=partial(addAndPopulate, 
         addFrame, populateFrame, checkbook))
     btn.grid(row=0, column=len(PC.SIZELIST))
